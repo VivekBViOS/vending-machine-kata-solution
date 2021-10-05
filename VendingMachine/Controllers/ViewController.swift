@@ -31,7 +31,7 @@ class ViewController: UIViewController {
     
     //    MARK:- Variable
     var viewModel: ViewModel!
-    
+   
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -39,29 +39,29 @@ class ViewController: UIViewController {
     }
     
     //    MARK:- SetUp View
-    
-    func setUpView() {
+    private func setUpView() {
         self.viewInsertCoin.isHidden = true
         self.lblPennyCoinNotAccept.isHidden = true
         self.lblItemDetails.isHidden = true
         self.stackCoin.isHidden = true
         self.btnSubmit.isEnabled = false
         self.viewModel = ViewModel()
-        self.viewModel.viewController = self
-        self.viewModel.tblView = tblView
-        self.viewModel.setUpData()
         self.viewModel.delegate = self
         
+        tblView?.register(UINib(nibName: "ProductListCell", bundle: nil), forCellReuseIdentifier: "ProductListCell")
+        self.tblView?.tableFooterView = UIView()
+        self.tblView?.dataSource = self
+        self.tblView?.delegate = self
     }
-    //    MARK:- Action
     
+    //    MARK:- Button Action
     @IBAction func actionCoinClick(_ sender: UIButton) {
         self.lblItemDetails.isHidden = true
         self.lblPennyCoinNotAccept.isHidden = true
         if sender.tag == 3 {
             self.lblPennyCoinNotAccept.isHidden = false
         } else {
-            self.viewModel.actionCointClick(ind: sender.tag)
+            self.viewModel.actionCoinClick(index: sender.tag)
         }
     }
     
@@ -71,11 +71,11 @@ class ViewController: UIViewController {
         self.btnSubmit.isEnabled = false
         self.lblSelectItem.isHidden = false
         self.lblSelectItem.text = "Thank You"
-        let str = self.viewModel.actionSubmit()
-        self.lblItemDetails.text = str
+        let message = self.viewModel.actionSubmit()
+        self.lblItemDetails.text = message
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-            self.viewModel.resetData()
+            self.viewModel.resetSelectedItemData()
             self.resetData()
         }
     }
@@ -83,16 +83,16 @@ class ViewController: UIViewController {
     @IBAction func actionReturn(_ sender: Any) {
         self.lblItemDetails.isHidden = false
         self.stackCoin.isHidden = true
-        let str = self.viewModel.actionReturnCoint()
-        self.lblItemDetails.text = str
+        let message = self.viewModel.actionReturnCoin()
+        self.lblItemDetails.text = message
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            self.viewModel.resetData()
+            self.viewModel.resetSelectedItemData()
             self.resetData()
         }
     }
-    
-    func resetData() {
+    //    MARK:- Reset Data
+    private func resetData() {
         self.tblView.reloadData()
         self.lblTotal.text = "$0.0"
         self.viewInsertCoin.isHidden = true
@@ -100,6 +100,36 @@ class ViewController: UIViewController {
         self.lblItemDetails.text = ""
         self.lblSelectItem.isHidden = false
         self.lblSelectItem.text = "Select Item"
+    }
+}
+
+//MARK:- TableView Delegate & DataSource Method
+
+extension ViewController : UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return self.viewModel.arrProductItems.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "ProductListCell", for: indexPath) as! ProductListCell
+        cell.productData = self.viewModel.arrProductItems[indexPath.row]
+        return cell
+    }
+        
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if self.viewModel.isSelectProduct == true {
+            self.viewModel.selectProduct(item: self.viewModel.arrProductItems[indexPath.row])
+            self.viewModel.selectItemIndex = indexPath.row
+            self.viewModel.isSelectProduct = false
+            for (index,_) in self.viewModel.arrProductItems.enumerated() {
+                if index == indexPath.row {
+                    self.viewModel.arrProductItems[index].isSelected = true
+                } else {
+                    self.viewModel.arrProductItems[index].isSelected = false
+                }
+            }
+            self.tblView.reloadData()
+        }
     }
 }
 
@@ -115,6 +145,7 @@ extension ViewController: SelectProductDelegate {
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                 self.lblSelectItem.text = "Select Item"
+                self.tblView.reloadData()
             }
         } else {
             self.viewInsertCoin.isHidden = false

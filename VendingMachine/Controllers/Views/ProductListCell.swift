@@ -13,7 +13,7 @@ class ProductListCell: UITableViewCell {
     @IBOutlet weak var lblPrice: UILabel!
     @IBOutlet weak var lblProductName: UILabel!
     
-    var productData: ProductItems! {
+    var productData: ProductItemsModel! {
         didSet{
             self.lblProductName.text = productData.name
             self.lblPrice.text = productData.amount

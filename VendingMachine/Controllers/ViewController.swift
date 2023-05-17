@@ -31,7 +31,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var btnSubmit: UIButton!
     @IBOutlet weak var btnReturn: UIButton!
     
-    //    MARK:- Variable
+    //    MARK:- Variable name priority
     var viewModel: ViewModel!
    
     override func viewDidLoad() {

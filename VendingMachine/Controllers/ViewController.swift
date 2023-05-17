@@ -9,7 +9,6 @@ import UIKit
 
 class ViewController: UIViewController {
     //This should not go in cherry pick
-    //This commit is from head of sub branch
     //    MARK:- Outlets
     //Sub comment
     @IBOutlet weak var tblView: UITableView!
@@ -31,7 +30,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var btnSubmit: UIButton!
     @IBOutlet weak var btnReturn: UIButton!
     
-    //    MARK:- Variable name priority
+    //    MARK:- Variable
     var viewModel: ViewModel!
    
     override func viewDidLoad() {
